@@ -11,6 +11,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { TecqLogo } from "@/components/brand/TecqLogo";
 
 const navItems = [
   { title: "Sessions", url: "/dashboard", icon: MonitorPlay },
@@ -35,18 +36,50 @@ export function AppSidebar() {
     >
       {/* Brand Block */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-sidebar-border">
-        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10">
-          <MonitorPlay className="w-5 h-5 text-primary" />
-        </div>
-        {!collapsed && (
-          <div className="flex flex-col">
-            <span className="text-sm font-bold tracking-wide text-foreground">
-              TECQ SRT
-            </span>
-            <span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-              Live Review
-            </span>
+        {collapsed ? (
+          <div className="flex items-center justify-center w-10 h-10">
+            {/* Mini metro icon when collapsed */}
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 40 40"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8 12 H16 Q20 12 20 16 V18"
+                stroke="hsl(var(--status-ok))"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M8 20 H18"
+                stroke="hsl(var(--primary))"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <path
+                d="M8 28 H16 Q20 28 20 24 V22"
+                stroke="hsl(var(--status-warning))"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+              />
+              <circle cx="20" cy="20" r="4" fill="hsl(var(--primary))" />
+              <path
+                d="M24 20 H32"
+                stroke="hsl(var(--foreground))"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+                strokeOpacity="0.5"
+              />
+            </svg>
           </div>
+        ) : (
+          <TecqLogo size="md" showSubtitle={true} />
         )}
       </div>
 

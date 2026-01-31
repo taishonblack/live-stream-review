@@ -78,7 +78,7 @@ export function StatusStrip({
   };
 
   return (
-    <div className="h-12 bg-panel border-b border-border flex items-center justify-between px-4">
+    <div className="h-12 bg-panel/80 backdrop-blur-sm border-b border-border flex items-center justify-between px-4">
       {/* Left: Title and Live indicator */}
       <div className="flex items-center gap-4">
         <h1 className="text-sm font-semibold text-foreground truncate max-w-[200px]">
@@ -102,23 +102,36 @@ export function StatusStrip({
         )}
       </div>
 
-      {/* Center: Input status chips */}
+      {/* Center: Input status chips (transit line indicators) */}
       <div className="flex items-center gap-2">
-        {statusChips.map((chip) => (
-          <button
-            key={chip.position}
-            onClick={() => onInputSelect(chip.position)}
-            className={cn(
-              'flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium transition-all',
-              'border hover:border-primary/50',
-              getHealthColor(chip.health),
-              selectedInput === chip.position && 'ring-1 ring-primary ring-offset-1 ring-offset-background'
-            )}
-          >
-            <span className="font-mono">{chip.position}</span>
-            <span className="hidden sm:inline text-[10px] opacity-80">{getHealthLabel(chip.health)}</span>
-          </button>
-        ))}
+        {statusChips.map((chip) => {
+          const healthColor = getHealthColor(chip.health);
+          return (
+            <button
+              key={chip.position}
+              onClick={() => onInputSelect(chip.position)}
+              className={cn(
+                'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-all',
+                'border hover:border-primary/50 station-glow',
+                healthColor,
+                selectedInput === chip.position && 'ring-2 ring-primary ring-offset-1 ring-offset-background'
+              )}
+            >
+              {/* Line indicator dot */}
+              <span 
+                className={cn(
+                  "w-2 h-2 rounded-full",
+                  chip.health === 'ok' && "bg-status-ok",
+                  chip.health === 'warning' && "bg-status-warning animate-pulse",
+                  chip.health === 'error' && "bg-status-error animate-pulse",
+                  chip.health === 'off' && "bg-status-off"
+                )}
+              />
+              <span className="font-mono">Line {chip.position}</span>
+              <span className="hidden sm:inline text-[10px] opacity-80">{getHealthLabel(chip.health)}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Right: Viewer count */}
