@@ -50,32 +50,62 @@ export function StreamTile({
   return (
     <div
       onClick={onSelect}
+      data-stream-position={position}
       className={cn(
-        'relative bg-tile rounded-lg overflow-hidden cursor-pointer transition-all group',
+        'relative bg-tile rounded-lg overflow-hidden cursor-pointer transition-all group tile-station',
         'border-2',
-        isSelected ? 'border-primary' : 'border-transparent hover:border-primary/30',
+        isSelected ? 'border-primary' : 'border-border hover:border-primary/30',
         isOff && 'opacity-60'
       )}
     >
       {/* Video placeholder / content area */}
-      <div className="aspect-video bg-background/50 flex items-center justify-center">
+      <div className="aspect-video bg-background/50 flex items-center justify-center relative">
         {isOff ? (
           <div className="text-center text-muted-foreground">
             <Wifi className="w-8 h-8 mx-auto mb-2 opacity-30" />
             <span className="text-xs">No Signal</span>
           </div>
         ) : (
-          <div className="text-center text-muted-foreground">
+          <>
             <div className="w-full h-full absolute inset-0 bg-gradient-to-br from-tile to-background/80" />
             <span className="relative text-xs font-mono">Stream {position}</span>
-          </div>
+            
+            {/* Animated metro line border for live streams */}
+            <svg 
+              className="absolute inset-0 w-full h-full pointer-events-none"
+              preserveAspectRatio="none"
+            >
+              <rect
+                x="2"
+                y="2"
+                width="calc(100% - 4px)"
+                height="calc(100% - 4px)"
+                fill="none"
+                stroke={health === 'ok' ? 'hsl(var(--status-ok))' : health === 'warning' ? 'hsl(var(--status-warning))' : 'transparent'}
+                strokeWidth="1"
+                rx="6"
+                className="metro-line-animated"
+                opacity="0.3"
+              />
+            </svg>
+          </>
         )}
       </div>
 
       {/* Top overlay: Name and status */}
-      <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-b from-black/60 to-transparent">
+      <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-b from-black/70 to-transparent">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
+            {/* Station marker */}
+            <span 
+              className={cn(
+                "w-3 h-3 rounded-full border-2 border-current",
+                health === 'ok' && "text-status-ok bg-status-ok/30",
+                health === 'warning' && "text-status-warning bg-status-warning/30",
+                health === 'error' && "text-status-error bg-status-error/30",
+                health === 'off' && "text-status-off bg-status-off/30"
+              )}
+            />
             <span className="font-mono text-xs text-white/80 bg-black/40 px-1.5 py-0.5 rounded">
               {position}
             </span>
@@ -87,7 +117,7 @@ export function StreamTile({
 
       {/* Bottom overlay: Metrics */}
       {!isOff && metrics && (
-        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent">
           <div className="flex items-center justify-between text-[10px] font-mono text-white/80">
             <span>{metrics.video_bitrate_kbps ? `${(metrics.video_bitrate_kbps / 1000).toFixed(1)} Mbps` : '--'}</span>
             <span className={cn(
@@ -104,7 +134,7 @@ export function StreamTile({
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white"
+          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white station-glow"
           onClick={(e) => {
             e.stopPropagation();
             onAudioToggle();
@@ -115,7 +145,7 @@ export function StreamTile({
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white"
+          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white station-glow"
           onClick={(e) => {
             e.stopPropagation();
             onInspect();
@@ -126,7 +156,7 @@ export function StreamTile({
         <Button
           variant="ghost"
           size="icon"
-          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white"
+          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white station-glow"
           onClick={(e) => {
             e.stopPropagation();
             onFullscreen();

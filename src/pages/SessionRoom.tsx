@@ -4,8 +4,10 @@ import { ArrowLeft, Play, Square, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { StatusStrip } from '@/components/session/StatusStrip';
+import { SignalTopologyStrip } from '@/components/session/SignalTopologyStrip';
 import { MultiviewCanvas } from '@/components/session/MultiviewCanvas';
 import { InspectorPanel } from '@/components/session/InspectorPanel';
+import { TecqLogo } from '@/components/brand/TecqLogo';
 import { useSessionMetrics } from '@/hooks/use-session-metrics';
 import { mockInputConfigs } from '@/lib/mock-data';
 import { AppRole, SessionMarker, SessionMember, StreamHealth } from '@/types/session';
@@ -215,9 +217,9 @@ export default function SessionRoom() {
   }));
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen flex flex-col bg-background metro-bg overflow-hidden">
       {/* Top bar with back button and session controls */}
-      <div className="h-12 bg-panel border-b border-border flex items-center justify-between px-4">
+      <div className="h-12 bg-panel/90 backdrop-blur-sm border-b border-border flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -227,7 +229,7 @@ export default function SessionRoom() {
           >
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <span className="text-sm font-medium text-foreground">{sessionTitle}</span>
+          <TecqLogo size="sm" showSubtitle={false} />
         </div>
         <div className="flex items-center gap-2">
           {userRole === 'owner' && (
@@ -272,6 +274,13 @@ export default function SessionRoom() {
         statusChips={statusChips}
         selectedInput={selectedInput}
         onInputSelect={setSelectedInput}
+      />
+
+      {/* Signal topology strip */}
+      <SignalTopologyStrip
+        inputs={statusChips}
+        viewerCount={viewerCount}
+        isLive={isLive}
       />
 
       {/* Main content area */}
