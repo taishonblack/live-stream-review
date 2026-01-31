@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   MonitorPlay,
   Plus,
-  Users,
+  Link2,
   Settings,
   ChevronLeft,
   ChevronRight,
@@ -15,7 +15,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 const navItems = [
   { title: "Sessions", url: "/dashboard", icon: MonitorPlay },
   { title: "Create Session", url: "/create", icon: Plus },
-  { title: "Join Session", url: "/join", icon: Users },
+  { title: "Join Session", url: "/join", icon: Link2 },
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
