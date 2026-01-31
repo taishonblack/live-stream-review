@@ -1,0 +1,150 @@
+import { useState } from 'react';
+import { Volume2, VolumeX, Maximize, Info, Wifi } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { StreamHealth, StreamMetrics } from '@/types/session';
+
+interface StreamTileProps {
+  position: number;
+  name: string;
+  health: StreamHealth;
+  metrics: StreamMetrics | null;
+  isAudioActive: boolean;
+  isSelected: boolean;
+  onSelect: () => void;
+  onAudioToggle: () => void;
+  onInspect: () => void;
+  onFullscreen: () => void;
+}
+
+export function StreamTile({
+  position,
+  name,
+  health,
+  metrics,
+  isAudioActive,
+  isSelected,
+  onSelect,
+  onAudioToggle,
+  onInspect,
+  onFullscreen,
+}: StreamTileProps) {
+  const isOff = health === 'off';
+
+  const getHealthBadge = () => {
+    const variants: Record<StreamHealth, { label: string; className: string }> = {
+      ok: { label: 'LIVE', className: 'bg-status-ok/20 text-status-ok border-status-ok/30' },
+      warning: { label: 'WARN', className: 'bg-status-warning/20 text-status-warning border-status-warning/30' },
+      error: { label: 'ERROR', className: 'bg-status-error/20 text-status-error border-status-error/30' },
+      off: { label: 'OFF', className: 'bg-status-off/20 text-status-off border-status-off/30' },
+    };
+    const { label, className } = variants[health];
+    return (
+      <Badge variant="outline" className={cn('text-[10px] font-semibold', className)}>
+        {label}
+      </Badge>
+    );
+  };
+
+  return (
+    <div
+      onClick={onSelect}
+      className={cn(
+        'relative bg-tile rounded-lg overflow-hidden cursor-pointer transition-all group',
+        'border-2',
+        isSelected ? 'border-primary' : 'border-transparent hover:border-primary/30',
+        isOff && 'opacity-60'
+      )}
+    >
+      {/* Video placeholder / content area */}
+      <div className="aspect-video bg-background/50 flex items-center justify-center">
+        {isOff ? (
+          <div className="text-center text-muted-foreground">
+            <Wifi className="w-8 h-8 mx-auto mb-2 opacity-30" />
+            <span className="text-xs">No Signal</span>
+          </div>
+        ) : (
+          <div className="text-center text-muted-foreground">
+            <div className="w-full h-full absolute inset-0 bg-gradient-to-br from-tile to-background/80" />
+            <span className="relative text-xs font-mono">Stream {position}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Top overlay: Name and status */}
+      <div className="absolute top-0 left-0 right-0 p-2 bg-gradient-to-b from-black/60 to-transparent">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs text-white/80 bg-black/40 px-1.5 py-0.5 rounded">
+              {position}
+            </span>
+            <span className="text-xs font-medium text-white truncate max-w-[120px]">{name}</span>
+          </div>
+          {getHealthBadge()}
+        </div>
+      </div>
+
+      {/* Bottom overlay: Metrics */}
+      {!isOff && metrics && (
+        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent">
+          <div className="flex items-center justify-between text-[10px] font-mono text-white/80">
+            <span>{metrics.video_bitrate_kbps ? `${(metrics.video_bitrate_kbps / 1000).toFixed(1)} Mbps` : '--'}</span>
+            <span className={cn(
+              metrics.network_packet_loss && metrics.network_packet_loss > 1 ? 'text-status-warning' : ''
+            )}>
+              {metrics.network_packet_loss !== null ? `${metrics.network_packet_loss.toFixed(1)}% loss` : '--'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Control buttons (show on hover) */}
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAudioToggle();
+          }}
+        >
+          {isAudioActive ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white"
+          onClick={(e) => {
+            e.stopPropagation();
+            onInspect();
+          }}
+        >
+          <Info className="w-3.5 h-3.5" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white"
+          onClick={(e) => {
+            e.stopPropagation();
+            onFullscreen();
+          }}
+        >
+          <Maximize className="w-3.5 h-3.5" />
+        </Button>
+      </div>
+
+      {/* Audio indicator */}
+      {isAudioActive && !isOff && (
+        <div className="absolute bottom-2 left-2">
+          <div className="flex items-center gap-1 bg-primary/90 text-primary-foreground px-1.5 py-0.5 rounded text-[10px]">
+            <Volume2 className="w-3 h-3" />
+            <span>Audio</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

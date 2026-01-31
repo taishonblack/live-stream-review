@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import CreateSession from "./pages/CreateSession";
+import JoinSession from "./pages/JoinSession";
+import SessionRoom from "./pages/SessionRoom";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -20,6 +23,10 @@ const App = () => (
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/create" element={<CreateSession />} />
+          <Route path="/join" element={<JoinSession />} />
+          <Route path="/join/:token" element={<JoinSession />} />
+          <Route path="/session/:id" element={<SessionRoom />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
