@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, Square, Settings, FlaskConical } from 'lucide-react';
+import { ArrowLeft, Play, Square, Settings, FlaskConical, PanelLeft } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { StatusStrip } from '@/components/session/StatusStrip';
@@ -15,11 +15,14 @@ import { loadSession, saveSession as saveToLocalStorage, type StoredInput } from
 import { AppRole, SessionMarker, SessionMember, StreamHealth } from '@/types/session';
 import { cn } from '@/lib/utils';
 import { usePreferences } from '@/hooks/use-preferences';
+import { useResponsiveNav } from '@/hooks/use-responsive-nav';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 export default function SessionRoom() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { prefs } = usePreferences();
+  const { navMode, toggleHidden } = useResponsiveNav();
 
   // Auth state
   const [userId, setUserId] = useState<string | null>(null);
@@ -259,6 +262,25 @@ export default function SessionRoom() {
 
   return (
     <div className={cn('h-screen flex flex-col bg-background overflow-hidden', prefs.showMetroBackground && 'metro-bg')}>
+      {/* Floating sidebar reopen tab */}
+      {navMode === 'hidden' && (
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleHidden}
+              className="fixed left-3 top-16 z-50 h-9 w-9 bg-panel/80 backdrop-blur-sm border border-border text-muted-foreground hover:text-foreground"
+            >
+              <PanelLeft className="w-4 h-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="bg-panel border-border">
+            Show sidebar (B)
+          </TooltipContent>
+        </Tooltip>
+      )}
+
       {/* Top bar with back button and session controls */}
       <div className="h-12 bg-panel/90 backdrop-blur-sm border-b border-border flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
