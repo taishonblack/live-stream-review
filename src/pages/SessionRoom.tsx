@@ -143,7 +143,7 @@ export default function SessionRoom() {
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-
+      // B is reserved for nav toggle (handled by useResponsiveNav)
       switch (e.key) {
         case '1':
         case '2':
