@@ -14,10 +14,12 @@ import { mockInputConfigs } from '@/lib/mock-data';
 import { loadSession, saveSession as saveToLocalStorage, type StoredInput } from '@/lib/session-store';
 import { AppRole, SessionMarker, SessionMember, StreamHealth } from '@/types/session';
 import { cn } from '@/lib/utils';
+import { usePreferences } from '@/hooks/use-preferences';
 
 export default function SessionRoom() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { prefs } = usePreferences();
 
   // Auth state
   const [userId, setUserId] = useState<string | null>(null);
@@ -256,7 +258,7 @@ export default function SessionRoom() {
   }));
 
   return (
-    <div className="h-screen flex flex-col bg-background metro-bg overflow-hidden">
+    <div className={cn('h-screen flex flex-col bg-background overflow-hidden', prefs.showMetroBackground && 'metro-bg')}>
       {/* Top bar with back button and session controls */}
       <div className="h-12 bg-panel/90 backdrop-blur-sm border-b border-border flex items-center justify-between px-4">
         <div className="flex items-center gap-3">
@@ -339,11 +341,13 @@ export default function SessionRoom() {
       />
 
       {/* Signal topology strip */}
-      <SignalTopologyStrip
-        inputs={statusChips}
-        viewerCount={viewerCount}
-        isLive={isLive}
-      />
+      {prefs.showSignalTopology && (
+        <SignalTopologyStrip
+          inputs={statusChips}
+          viewerCount={viewerCount}
+          isLive={isLive}
+        />
+      )}
 
       {/* Main content area */}
       <div className={cn('flex-1 overflow-hidden', inspectorOpen && 'mr-[480px]')}>
