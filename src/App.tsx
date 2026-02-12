@@ -9,18 +9,17 @@ import Dashboard from "./pages/Dashboard";
 import CreateSession from "./pages/CreateSession";
 import JoinSession from "./pages/JoinSession";
 import SessionRoom from "./pages/SessionRoom";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import { usePreferences } from "./hooks/use-preferences";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <div className="min-h-screen tecq-bg">
-          <div className="min-h-screen tecq-bg-mask">
+const AppShell = () => {
+  const { prefs } = usePreferences();
+  return (
+    <div className={`min-h-screen ${prefs.showMetroBackground ? 'tecq-bg' : 'bg-background'}`}>
+      <div className={`min-h-screen ${prefs.showMetroBackground ? 'tecq-bg-mask' : ''}`}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
@@ -29,11 +28,22 @@ const App = () => (
           <Route path="/join" element={<JoinSession />} />
           <Route path="/join/:token" element={<JoinSession />} />
           <Route path="/session/:id" element={<SessionRoom />} />
+          <Route path="/settings" element={<Settings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-          </div>
-        </div>
+      </div>
+    </div>
+  );
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AppShell />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
