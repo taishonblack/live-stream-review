@@ -2,6 +2,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { usePreferences } from '@/hooks/use-preferences';
+import { Moon, Sun } from 'lucide-react';
 
 export default function Settings() {
   const { prefs, setPref } = usePreferences();
@@ -15,6 +16,27 @@ export default function Settings() {
         </div>
 
         <div className="space-y-6">
+          {/* Theme toggle */}
+          <div className="flex items-center justify-between gap-4">
+            <Label htmlFor="theme" className="flex flex-col gap-1 cursor-pointer">
+              <span className="text-sm font-medium text-foreground flex items-center gap-2">
+                {prefs.theme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+                Theme
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {prefs.theme === 'dark' ? 'Dark operator theme' : 'Light theme'}
+              </span>
+            </Label>
+            <Switch
+              id="theme"
+              checked={prefs.theme === 'light'}
+              onCheckedChange={(v) => setPref('theme', v ? 'light' : 'dark')}
+            />
+          </div>
+
+          <div className="w-full h-px bg-border" />
+
+          {/* Metro background */}
           <div className="flex items-center justify-between gap-4">
             <Label htmlFor="metro-bg" className="flex flex-col gap-1 cursor-pointer">
               <span className="text-sm font-medium text-foreground">Show metro background</span>
@@ -29,6 +51,7 @@ export default function Settings() {
 
           <div className="w-full h-px bg-border" />
 
+          {/* Signal topology */}
           <div className="flex items-center justify-between gap-4">
             <Label htmlFor="topology" className="flex flex-col gap-1 cursor-pointer">
               <span className="text-sm font-medium text-foreground">Show signal topology strip</span>

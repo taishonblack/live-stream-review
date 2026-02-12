@@ -1,13 +1,17 @@
 const PREFS_KEY = 'tecq-preferences';
 
+export type ThemeMode = 'dark' | 'light';
+
 export interface Preferences {
   showMetroBackground: boolean;
   showSignalTopology: boolean;
+  theme: ThemeMode;
 }
 
 const defaults: Preferences = {
   showMetroBackground: true,
   showSignalTopology: true,
+  theme: 'dark',
 };
 
 export function loadPreferences(): Preferences {

@@ -1,4 +1,4 @@
-import { useState, useCallback, useSyncExternalStore } from 'react';
+import { useCallback, useSyncExternalStore, useEffect } from 'react';
 import { loadPreferences, savePreferences, type Preferences } from '@/lib/preferences';
 
 let listeners: (() => void)[] = [];
@@ -19,8 +19,25 @@ function update(patch: Partial<Preferences>) {
   listeners.forEach(l => l());
 }
 
+function applyThemeClass(theme: string) {
+  const root = document.documentElement;
+  if (theme === 'light') {
+    root.classList.add('light');
+  } else {
+    root.classList.remove('light');
+  }
+}
+
+// Apply on load
+applyThemeClass(snapshot.theme);
+
 export function usePreferences() {
   const prefs = useSyncExternalStore(subscribe, getSnapshot);
+
+  useEffect(() => {
+    applyThemeClass(prefs.theme);
+  }, [prefs.theme]);
+
   const setPref = useCallback(<K extends keyof Preferences>(key: K, value: Preferences[K]) => {
     update({ [key]: value });
   }, []);
