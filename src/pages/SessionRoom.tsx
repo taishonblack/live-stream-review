@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, Square, Settings } from 'lucide-react';
+import { ArrowLeft, Play, Square, Settings, FlaskConical } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { StatusStrip } from '@/components/session/StatusStrip';
@@ -25,8 +25,8 @@ export default function SessionRoom() {
 
   // Session state
   const [sessionTitle, setSessionTitle] = useState('Champions League Feed QC');
-  const [isLive, setIsLive] = useState(true);
-  const [startedAt, setStartedAt] = useState<Date | null>(new Date(Date.now() - 3600000));
+  const [isLive, setIsLive] = useState(false);
+  const [startedAt, setStartedAt] = useState<Date | null>(null);
   const [viewerCount, setViewerCount] = useState(3);
 
   // Multiview state
@@ -271,6 +271,29 @@ export default function SessionRoom() {
           <TecqLogo size="sm" showSubtitle={false} />
         </div>
         <div className="flex items-center gap-2">
+          {/* Dev-only simulated live toggle */}
+          <Button
+            variant={isLive ? 'default' : 'outline'}
+            size="sm"
+            className={cn(
+              'h-8 gap-1.5 font-mono text-xs',
+              isLive && 'bg-status-ok/20 text-status-ok border border-status-ok/30 hover:bg-status-ok/30'
+            )}
+            onClick={() => {
+              if (!isLive) {
+                setIsLive(true);
+                setStartedAt(new Date());
+              } else {
+                setIsLive(false);
+              }
+            }}
+          >
+            <FlaskConical className="w-3.5 h-3.5" />
+            {isLive ? 'SIM LIVE' : 'Simulate'}
+          </Button>
+
+          <div className="w-px h-6 bg-border" />
+
           {userRole === 'owner' && (
             <>
               {isLive ? (
