@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { saveSession as saveToLocalStorage, type StoredSession } from '@/lib/session-store';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -96,6 +97,27 @@ export default function CreateSession() {
         const { error: inputsError } = await supabase.from('session_inputs').insert(inputsData);
         if (inputsError) throw inputsError;
       }
+
+      // Save to localStorage for persistence across refresh
+      const stored: StoredSession = {
+        id: session.id,
+        title: sessionName,
+        purpose,
+        createdAt: Date.now(),
+        inputs: inputs.filter(i => i.enabled).map(i => ({
+          position: i.position,
+          name: i.name,
+          mode: i.mode,
+          host: i.host,
+          port: i.port ? parseInt(i.port) : null,
+          passphrase: i.passphrase || null,
+          latency_ms: i.latency ? parseInt(i.latency) : 200,
+          enabled: true,
+        })),
+        isLive: false,
+        startedAt: null,
+      };
+      saveToLocalStorage(stored);
 
       navigate(`/session/${session.id}`);
     } catch (error) {
