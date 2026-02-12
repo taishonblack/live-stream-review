@@ -12,7 +12,7 @@ import { TecqLogo } from '@/components/brand/TecqLogo';
 import { useSessionMetrics } from '@/hooks/use-session-metrics';
 import { mockInputConfigs } from '@/lib/mock-data';
 import { loadSession, saveSession as saveToLocalStorage, type StoredInput } from '@/lib/session-store';
-import { AppRole, SessionMarker, SessionMember, StreamHealth } from '@/types/session';
+import { AppRole, SessionMarker, SessionMember, StreamHealth, ViewMode } from '@/types/session';
 import { cn } from '@/lib/utils';
 import { usePreferences } from '@/hooks/use-preferences';
 import { useResponsiveNav } from '@/hooks/use-responsive-nav';
@@ -37,6 +37,8 @@ export default function SessionRoom() {
   // Multiview state
   const [selectedInput, setSelectedInput] = useState<number | null>(1);
   const [activeAudioInput, setActiveAudioInput] = useState<number | null>(1);
+  const [viewMode, setViewMode] = useState<ViewMode>('4');
+  const [fullscreenInput, setFullscreenInput] = useState<number | null>(null);
 
   // Inspector state
   const [inspectorOpen, setInspectorOpen] = useState(false);
@@ -172,10 +174,7 @@ export default function SessionRoom() {
         case 'F':
           e.preventDefault();
           if (selectedInput) {
-            const tile = document.querySelector(`[data-stream-position="${selectedInput}"]`);
-            if (tile && document.fullscreenEnabled) {
-              tile.requestFullscreen?.();
-            }
+            setFullscreenInput(prev => prev === selectedInput ? null : selectedInput);
           }
           break;
       }
@@ -372,11 +371,15 @@ export default function SessionRoom() {
       )}
 
       {/* Main content area */}
-      <div className={cn('flex-1 overflow-hidden', inspectorOpen && 'mr-[480px]')}>
+      <div className={cn('flex-1 overflow-hidden', inspectorOpen && !fullscreenInput && 'mr-[480px]')}>
         <MultiviewCanvas
           inputs={inputs}
           selectedInput={selectedInput}
           activeAudioInput={activeAudioInput}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          fullscreenInput={fullscreenInput}
+          onFullscreenChange={setFullscreenInput}
           onInputSelect={setSelectedInput}
           onAudioSelect={setActiveAudioInput}
           onInspect={handleInspect}
