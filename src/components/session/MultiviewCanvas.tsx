@@ -22,6 +22,7 @@ interface MultiviewCanvasProps {
   onInputSelect: (position: number) => void;
   onAudioSelect: (position: number) => void;
   onInspect: (position: number) => void;
+  onEditLine?: (position: number) => void;
 }
 
 export function MultiviewCanvas({
@@ -31,6 +32,7 @@ export function MultiviewCanvas({
   onInputSelect,
   onAudioSelect,
   onInspect,
+  onEditLine,
 }: MultiviewCanvasProps) {
   const [layout, setLayout] = useState<LayoutType>('2x2');
 
@@ -43,7 +45,6 @@ export function MultiviewCanvas({
 
   const sortedInputs = [...inputs].sort((a, b) => a.position - b.position);
   
-  // Ensure we have 4 slots
   const slots = [1, 2, 3, 4].map(pos => 
     sortedInputs.find(i => i.position === pos) || {
       id: `empty-${pos}`,
@@ -54,6 +55,20 @@ export function MultiviewCanvas({
     }
   );
 
+  const tileProps = (input: typeof slots[0]) => ({
+    position: input.position,
+    name: input.name,
+    health: input.health,
+    metrics: input.metrics,
+    isAudioActive: activeAudioInput === input.position,
+    isSelected: selectedInput === input.position,
+    onSelect: () => onInputSelect(input.position),
+    onAudioToggle: () => onAudioSelect(input.position),
+    onInspect: () => onInspect(input.position),
+    onFullscreen: () => handleFullscreen(input.position),
+    onEdit: onEditLine ? () => onEditLine(input.position) : undefined,
+  });
+
   const renderGrid = () => {
     switch (layout) {
       case '2x2':
@@ -61,18 +76,7 @@ export function MultiviewCanvas({
           <div className="grid grid-cols-2 grid-rows-2 gap-2 h-full">
             {slots.map((input) => (
               <div key={input.position} data-stream-position={input.position}>
-                <StreamTile
-                  position={input.position}
-                  name={input.name}
-                  health={input.health}
-                  metrics={input.metrics}
-                  isAudioActive={activeAudioInput === input.position}
-                  isSelected={selectedInput === input.position}
-                  onSelect={() => onInputSelect(input.position)}
-                  onAudioToggle={() => onAudioSelect(input.position)}
-                  onInspect={() => onInspect(input.position)}
-                  onFullscreen={() => handleFullscreen(input.position)}
-                />
+                <StreamTile {...tileProps(input)} />
               </div>
             ))}
           </div>
@@ -82,34 +86,12 @@ export function MultiviewCanvas({
         return (
           <div className="grid grid-cols-4 gap-2 h-full">
             <div className="col-span-3" data-stream-position={slots[0].position}>
-              <StreamTile
-                position={slots[0].position}
-                name={slots[0].name}
-                health={slots[0].health}
-                metrics={slots[0].metrics}
-                isAudioActive={activeAudioInput === slots[0].position}
-                isSelected={selectedInput === slots[0].position}
-                onSelect={() => onInputSelect(slots[0].position)}
-                onAudioToggle={() => onAudioSelect(slots[0].position)}
-                onInspect={() => onInspect(slots[0].position)}
-                onFullscreen={() => handleFullscreen(slots[0].position)}
-              />
+              <StreamTile {...tileProps(slots[0])} />
             </div>
             <div className="col-span-1 flex flex-col gap-2">
               {slots.slice(1).map((input) => (
                 <div key={input.position} className="flex-1" data-stream-position={input.position}>
-                  <StreamTile
-                    position={input.position}
-                    name={input.name}
-                    health={input.health}
-                    metrics={input.metrics}
-                    isAudioActive={activeAudioInput === input.position}
-                    isSelected={selectedInput === input.position}
-                    onSelect={() => onInputSelect(input.position)}
-                    onAudioToggle={() => onAudioSelect(input.position)}
-                    onInspect={() => onInspect(input.position)}
-                    onFullscreen={() => handleFullscreen(input.position)}
-                  />
+                  <StreamTile {...tileProps(input)} />
                 </div>
               ))}
             </div>
@@ -122,34 +104,12 @@ export function MultiviewCanvas({
             <div className="col-span-1 flex flex-col gap-2">
               {slots.slice(1).map((input) => (
                 <div key={input.position} className="flex-1" data-stream-position={input.position}>
-                  <StreamTile
-                    position={input.position}
-                    name={input.name}
-                    health={input.health}
-                    metrics={input.metrics}
-                    isAudioActive={activeAudioInput === input.position}
-                    isSelected={selectedInput === input.position}
-                    onSelect={() => onInputSelect(input.position)}
-                    onAudioToggle={() => onAudioSelect(input.position)}
-                    onInspect={() => onInspect(input.position)}
-                    onFullscreen={() => handleFullscreen(input.position)}
-                  />
+                  <StreamTile {...tileProps(input)} />
                 </div>
               ))}
             </div>
             <div className="col-span-3" data-stream-position={slots[0].position}>
-              <StreamTile
-                position={slots[0].position}
-                name={slots[0].name}
-                health={slots[0].health}
-                metrics={slots[0].metrics}
-                isAudioActive={activeAudioInput === slots[0].position}
-                isSelected={selectedInput === slots[0].position}
-                onSelect={() => onInputSelect(slots[0].position)}
-                onAudioToggle={() => onAudioSelect(slots[0].position)}
-                onInspect={() => onInspect(slots[0].position)}
-                onFullscreen={() => handleFullscreen(slots[0].position)}
-              />
+              <StreamTile {...tileProps(slots[0])} />
             </div>
           </div>
         );

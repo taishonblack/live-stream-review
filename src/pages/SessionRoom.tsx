@@ -7,9 +7,11 @@ import { StatusStrip } from '@/components/session/StatusStrip';
 import { SignalTopologyStrip } from '@/components/session/SignalTopologyStrip';
 import { MultiviewCanvas } from '@/components/session/MultiviewCanvas';
 import { InspectorPanel } from '@/components/session/InspectorPanel';
+import { EditLineDialog } from '@/components/session/EditLineDialog';
 import { TecqLogo } from '@/components/brand/TecqLogo';
 import { useSessionMetrics } from '@/hooks/use-session-metrics';
 import { mockInputConfigs } from '@/lib/mock-data';
+import { loadSession, saveSession as saveToLocalStorage, type StoredInput } from '@/lib/session-store';
 import { AppRole, SessionMarker, SessionMember, StreamHealth } from '@/types/session';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +37,9 @@ export default function SessionRoom() {
   const [inspectorOpen, setInspectorOpen] = useState(false);
   const [inspectorTab, setInspectorTab] = useState<'details' | 'audio' | 'timeline' | 'notes' | 'people'>('details');
 
+  // Edit line state
+  const [editingInput, setEditingInput] = useState<StoredInput | null>(null);
+
   // Notes and markers
   const [notes, setNotes] = useState('');
   const [markers, setMarkers] = useState<SessionMarker[]>([]);
@@ -54,6 +59,24 @@ export default function SessionRoom() {
     initialHealth,
     enabled: isLive,
   });
+
+  // Restore from localStorage on mount
+  useEffect(() => {
+    const stored = loadSession(id);
+    if (stored) {
+      setSessionTitle(stored.title);
+      setIsLive(stored.isLive);
+      if (stored.startedAt) setStartedAt(new Date(stored.startedAt));
+    }
+  }, [id]);
+
+  // Persist live state changes
+  useEffect(() => {
+    const stored = loadSession(id);
+    if (stored) {
+      saveToLocalStorage({ ...stored, isLive, startedAt: startedAt?.getTime() || null });
+    }
+  }, [isLive, startedAt, id]);
 
   // Check auth
   useEffect(() => {
@@ -188,6 +211,22 @@ export default function SessionRoom() {
     setMembers((prev) => prev.filter((m) => m.user_id !== memberId));
   }, []);
 
+  const handleEditLine = useCallback((position: number) => {
+    const stored = loadSession(id);
+    if (stored) {
+      const input = stored.inputs.find(i => i.position === position);
+      if (input) setEditingInput(input);
+    }
+  }, [id]);
+
+  const handleApplyEdit = useCallback((position: number, patch: Partial<StoredInput>) => {
+    const stored = loadSession(id);
+    if (stored) {
+      stored.inputs = stored.inputs.map(i => i.position === position ? { ...i, ...patch } : i);
+      saveToLocalStorage(stored);
+    }
+  }, [id]);
+
   // Build inputs data for multiview
   const allStates = getAllStates();
   const inputs = mockInputConfigs.map((config, i) => {
@@ -292,6 +331,7 @@ export default function SessionRoom() {
           onInputSelect={setSelectedInput}
           onAudioSelect={setActiveAudioInput}
           onInspect={handleInspect}
+          onEditLine={handleEditLine}
         />
       </div>
 
@@ -315,6 +355,14 @@ export default function SessionRoom() {
         onGenerateInvite={handleGenerateInvite}
         onRemoveMember={handleRemoveMember}
         defaultTab={inspectorTab}
+      />
+
+      {/* Edit line dialog */}
+      <EditLineDialog
+        input={editingInput}
+        open={!!editingInput}
+        onClose={() => setEditingInput(null)}
+        onApply={handleApplyEdit}
       />
     </div>
   );

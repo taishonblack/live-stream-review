@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Volume2, VolumeX, Maximize, Info, Wifi } from 'lucide-react';
+import { Volume2, VolumeX, Maximize, Info, Wifi, Pencil } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,7 @@ interface StreamTileProps {
   onAudioToggle: () => void;
   onInspect: () => void;
   onFullscreen: () => void;
+  onEdit?: () => void;
 }
 
 export function StreamTile({
@@ -29,6 +30,7 @@ export function StreamTile({
   onAudioToggle,
   onInspect,
   onFullscreen,
+  onEdit,
 }: StreamTileProps) {
   const isOff = health === 'off';
 
@@ -164,6 +166,19 @@ export function StreamTile({
         >
           <Maximize className="w-3.5 h-3.5" />
         </Button>
+        {onEdit && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 bg-black/50 hover:bg-black/70 text-white station-glow"
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
+        )}
       </div>
 
       {/* Audio indicator */}
