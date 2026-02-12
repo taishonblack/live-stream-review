@@ -122,6 +122,9 @@ export interface StreamMetricsPoint {
   lufs_m: number | null;
 }
 
+// View mode types
+export type ViewMode = '1' | '2' | '3' | '4';
+
 // Extended types for UI
 export interface SessionInputWithStream extends SessionInput {
   stream?: SessionStream;
