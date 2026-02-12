@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   MonitorPlay,
@@ -7,11 +6,13 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  PanelLeftClose,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { TecqLogo } from "@/components/brand/TecqLogo";
+import type { NavMode } from "@/hooks/use-responsive-nav";
 
 const navItems = [
   { title: "Sessions", url: "/dashboard", icon: MonitorPlay },
@@ -20,17 +21,43 @@ const navItems = [
   { title: "Settings", url: "/settings", icon: Settings },
 ];
 
-export function AppSidebar() {
-  const [collapsed, setCollapsed] = useState(false);
+interface AppSidebarProps {
+  navMode: NavMode;
+  onToggleCollapsed: () => void;
+  onToggleHidden: () => void;
+}
+
+export function AppSidebar({ navMode, onToggleCollapsed, onToggleHidden }: AppSidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
+  if (navMode === "hidden") {
+    return (
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleHidden}
+            className="fixed left-3 top-3 z-50 h-9 w-9 bg-sidebar/80 backdrop-blur-sm border border-sidebar-border text-muted-foreground hover:text-foreground"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="bg-panel border-border">
+          Show sidebar (B)
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  const collapsed = navMode === "collapsed";
   const isActive = (path: string) => location.pathname === path;
 
   return (
     <aside
       className={cn(
-        "flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-200",
+        "flex flex-col h-screen bg-sidebar border-r border-sidebar-border transition-all duration-200 shrink-0",
         collapsed ? "w-[72px]" : "w-[220px]"
       )}
     >
@@ -38,44 +65,12 @@ export function AppSidebar() {
       <div className="flex items-center gap-3 px-4 py-5 border-b border-sidebar-border">
         {collapsed ? (
           <div className="flex items-center justify-center w-10 h-10">
-            {/* Mini metro icon when collapsed */}
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 40 40"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M8 12 H16 Q20 12 20 16 V18"
-                stroke="hsl(var(--status-ok))"
-                strokeWidth="2"
-                strokeLinecap="round"
-                fill="none"
-              />
-              <path
-                d="M8 20 H18"
-                stroke="hsl(var(--primary))"
-                strokeWidth="2"
-                strokeLinecap="round"
-                fill="none"
-              />
-              <path
-                d="M8 28 H16 Q20 28 20 24 V22"
-                stroke="hsl(var(--status-warning))"
-                strokeWidth="2"
-                strokeLinecap="round"
-                fill="none"
-              />
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 12 H16 Q20 12 20 16 V18" stroke="hsl(var(--status-ok))" strokeWidth="2" strokeLinecap="round" fill="none" />
+              <path d="M8 20 H18" stroke="hsl(var(--primary))" strokeWidth="2" strokeLinecap="round" fill="none" />
+              <path d="M8 28 H16 Q20 28 20 24 V22" stroke="hsl(var(--status-warning))" strokeWidth="2" strokeLinecap="round" fill="none" />
               <circle cx="20" cy="20" r="4" fill="hsl(var(--primary))" />
-              <path
-                d="M24 20 H32"
-                stroke="hsl(var(--foreground))"
-                strokeWidth="2"
-                strokeLinecap="round"
-                fill="none"
-                strokeOpacity="0.5"
-              />
+              <path d="M24 20 H32" stroke="hsl(var(--foreground))" strokeWidth="2" strokeLinecap="round" fill="none" strokeOpacity="0.5" />
             </svg>
           </div>
         ) : (
@@ -119,12 +114,12 @@ export function AppSidebar() {
         })}
       </nav>
 
-      {/* Collapse Toggle */}
-      <div className="px-3 py-4 border-t border-sidebar-border">
+      {/* Bottom controls */}
+      <div className="px-3 py-4 border-t border-sidebar-border space-y-1">
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={onToggleCollapsed}
           className="w-full justify-center text-muted-foreground hover:text-foreground"
         >
           {collapsed ? (
@@ -136,6 +131,17 @@ export function AppSidebar() {
             </>
           )}
         </Button>
+        {!collapsed && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleHidden}
+            className="w-full justify-center text-muted-foreground hover:text-foreground"
+          >
+            <PanelLeftClose className="w-4 h-4 mr-2" />
+            <span className="text-xs">Hide (B)</span>
+          </Button>
+        )}
       </div>
     </aside>
   );
